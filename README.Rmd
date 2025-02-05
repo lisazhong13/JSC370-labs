@@ -89,7 +89,6 @@ Once you are done setting up the project, you can now start working with the MET
 
 1. Load the `data.table` (and the `dtplyr` and `dplyr` packages).
 ```{r}
-install.packages("data.table")
 library(data.table)
 library(dtplyr)
 library(dplyr)
@@ -97,7 +96,7 @@ library(dplyr)
 
 2. Load the met data from https://raw.githubusercontent.com/JSC370/JSC370-2024/main/data/met_all_2023.gz, and also the station data. For the latter, you can use the code we used during lecture to pre-process the stations data:
 
-```{r stations-data, eval = FALSE}
+```{r stations-data}
 # Download the data
 stations <- fread("ftp://ftp.ncdc.noaa.gov/pub/data/noaa/isd-history.csv")
 stations[, USAF := as.integer(USAF)]
@@ -137,7 +136,7 @@ met <- merge(x = met, y = stations, by.x = "USAFID", by.y = "USAF", all.x = TRUE
 ```
 
 ```{r}
-met <- left_join(x = met, y = stations, by = c("USFAID" = "USAF"))
+#met <- left_join(x = met, y = stations, by = c("USFAID" = "USAF"))
 ```
 
 ## Question 1: Representative station for the US
@@ -259,14 +258,6 @@ Start by computing the states' average temperature. Use that measurement to clas
 met[, elev_cat := fifelse(elev < 90, "low-elev", "high-elev")]
 ```
 
-```{r}
-summary_table <- summary_table |>
-  mutate(avg_temp_level = case_when(
-    temp_mean < 20 ~ "low",
-    temp_mean >= 20 & temp_mean < 25 ~ "mid",
-    temp_mean >= 25 ~ "high"
-  ))
-```
 Once you are done with that, you can compute the following:
 
 - Number of entries (records),
@@ -285,10 +276,17 @@ summary_table <- met |>
   pivot_wider(names_from = elev_cat, values_from = temp_mean)
 ```
 
+```{r}
+#summary_table <- summary_table |>
+#  mutate(avg_temp_level = case_when(
+#    temp_mean < 20 ~ "low",
+#    temp_mean >= 20 & temp_mean < 25 ~ "mid",
+#    temp_mean >= 25 ~ "high"
+#  ))
+```
 
 ```{r}
 # Install and load kableExtra
-install.packages("kableExtra")
 library(kableExtra)
 
 # Generate the table
@@ -327,7 +325,6 @@ lm_mod <- lm (temp~atm.press, data=station_med_lt)
 
 summary (lm_mod)
 
-install.packages("mgcv")  # Run only if not installed
 library(mgcv)
 
 # bs-"cr" cubic regrssion line, 20 degree of freedom,
