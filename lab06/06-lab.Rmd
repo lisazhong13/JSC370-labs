@@ -121,7 +121,7 @@ before, we will need to coerce the contents (results) to a list using:
 2. Query parameters:
     - db: pubmed
     - id: A character with all the ids separated by comma, e.g., "1232131,546464,13131"
-    - retmax: 1000
+    - retmax: 300
     - rettype: abstract
     
 **Pro-tip**: If you want `GET()` to take some element literal, wrap it around `I()` (as you would do in a formula in R). For example, the text `"123,456"` is replaced with `"123%2C456"`. If you don't want that behavior, you would need to do the following `I("123,456")`.
@@ -132,7 +132,7 @@ publications <- GET(
   query = list(
     db = "pubmed",
     id = paste(ids, collapse = ","), # each id is connected with comma now
-    retmax = 1000,
+    retmax = 300,
     rettype = "abstract"
     )
 )
