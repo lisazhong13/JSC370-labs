@@ -1,6 +1,6 @@
 ---
 title: "Lab 06 - Regular Expressions and Web Scraping"
-output: github_document
+output: html_document
 ---
 
 ```{r setup, echo=FALSE}
@@ -81,10 +81,6 @@ query_ids <- GET(
 ids <- httr::content(query_ids)
 ```
 
-```{r}
-ids # all ids are stored in the fourth row
-```
-
 The query will return an XML object, we can turn it into a character list to
 analyze the text directly with `as.character()`. Another way of processing the
 data could be using lists with the function `xml2::as_list()`. We will skip the latter for now.
@@ -107,10 +103,6 @@ ids <- stringr::str_extract_all(ids, "<Id>[0-9]+</Id>\n")[[1]]
 
 # Remove all the leading and trailing <Id> </Id>. Make use of "|"
 ids <- stringr::str_remove_all(ids, "<Id>|</Id>\n")
-```
-
-```{r}
-ids
 ```
 
 With the ids in hand, we can now try to get the abstracts of the papers. As
@@ -154,9 +146,10 @@ Using the function `stringr::str_extract_all()` applied on `publications_txt`, c
 Write a regular expression that captures all such instances
 
 ```{r univ-institute-regex, eval = FALSE}
+library(stringr)
 institution <- str_extract_all(
   publications_txt,
-  "[YOUR REGULAR EXPRESSION HERE]"
+  "University\\sof\\s+[[:alpha:]]+|[[:alpha:]]+\\s+Institute\\sof\\s+[[:alpha:]]+" #double slash as it is under quotation mark
   ) 
 institution <- unlist(institution)
 as.data.frame(table(institution))
@@ -171,8 +164,8 @@ And tabulate the results
 
 ```{r school-department, eval = FALSE}
 schools_and_deps <- str_extract_all(
-  abstracts_txt,
-  "[YOUR REGULAR EXPRESSION HERE]"
+  publications_txt,
+  "School\\sof\\s+[[:alpha:]]+|Department\\sof\\s+[[:alpha:]]+"
   )
 as.data.frame(table(schools_and_deps))
 ```
@@ -198,33 +191,36 @@ Now, extract the abstract and article title for each one of the elements of
 take advantage of vectorization of `stringr::str_extract`
 
 ```{r extracting-last-bit, eval = FALSE}
-abstracts <- str_extract(pub_char_list, "[YOUR REGULAR EXPRESSION]")
-abstracts <- str_remove_all(abstracts, "[CLEAN ALL THE HTML TAGS]")
-abstracts <- str_remove_all(abstracts, "[CLEAN ALL EXTRA WHITE SPACE AND NEW LINES]")
+abstracts <- str_extract(pub_char_list, "<Abstract>(\\n|.)+</Abstract>")
+abstracts <- str_remove_all(abstracts, "</?[[:alnum:]]+>")
+abstracts <- str_remove_all(abstracts, "\\s+")
+table(is.na(abstracts))
 ```
 
   - How many of these don't have an abstract? 
 
-_Answer here._
+15 does not have an abstract
 
 Now, the title
 
 ```{r process-titles, eval = FALSE}
-titles <- str_extract(pub_char_list, "[YOUR REGULAR EXPRESSION]")
-titles <- str_remove_all(titles, "[CLEAN ALL THE HTML TAGS]")
+titles <- str_extract(pub_char_list, "<ArticleTitle>(\\n|.)+</ArticleTitle>")
+titles <- str_remove_all(titles, "</?[[:alnum:]]+>")
+titles <- str_remove_all(titles, "\\s+")
+table(is.na(titles))
 ```
 
 - How many of these don't have a title ? 
 
-_Answer here._
+all of them have a title
 
 Finally, put everything together into a single `data.frame` and use
 `knitr::kable` to print the results
 
 ```{r build-db, eval = FALSE}
-database <- data.frame(
-  "[DATA TO CONCATENATE]"
-)
+database <- data.frame(PubMedId = ids,
+                       Title = titles,
+                       Abstract = abstracts)
 knitr::kable(database)
 ```
 
@@ -235,7 +231,8 @@ Done! Knit the document, commit, and push.
 You can still share the HTML document on github. You can include a link in your `README.md` file as the following:
 
 ```md
-View [here](https://cdn.jsdelivr.net/gh/:user/:repo@:tag/:file) 
+Rmd file [here](https://cdn.jsdelivr.net/gh/:user/:repo@:tag/:file) 
+HTML file
 ```
 
 For example, if we wanted to add a direct link the HTML page of lecture 6, we could do something like the following:
