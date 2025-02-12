@@ -1,6 +1,6 @@
 ---
 title: "Lab 06 - Regular Expressions and Web Scraping"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, echo=FALSE}
